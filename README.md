@@ -2,21 +2,23 @@
 
 **RepoRadar** is an autonomous Python agentic pipeline that discovers breakout open-source GitHub repositories *before* they go viral. 
 
-It runs completely autonomously via GitHub Actions every day at 6:00 AM IST, aggregates data across 4 platforms, uses LLMs to conduct deep research, generates ready-to-post viral content for social media (e.g., Instagram Reels), and delivers the final report directly to your Telegram.
+It runs completely autonomously via GitHub Actions every day at 6:00 AM IST, aggregates data across 4 platforms, uses LLMs to conduct deep research, generates ready-to-record **Reel scripts** for social media, and delivers the final report directly to your Telegram.
 
 ---
 
 ## 🚀 How it Works
 
+The pipeline is orchestrated as a state machine using **LangGraph** with 5 distinct agentic nodes:
+
 1. **Discovery Agent**: Scrapes and queries 4 sources in parallel (GitHub Trending, GitHub Search API, Hacker News, and 7 programming subreddits) to find new repositories. *Currently strictly configured to hunt for AI Agents, AI Workflows, and LLM Pipelines with over 1,200 stars.*
 2. **Filter Agent**: Calculates a "Velocity Score" (stars per hour) to surface unusually fast-growing repos, and uses an ultra-fast LLM (e.g., Groq Llama 3) as a quality gate to drop spam or low-effort projects. *Utilizes a round-robin API key rotator with true multi-threading to bypass free-tier rate limits instantly.*
 3. **Research Agent**: Fetches the READMEs and repository metadata of the filtered repos, then runs deep parallel analysis to understand the problem solved, tech stack, architecture, pros, and cons.
-4. **Generator Agent**: Scores the researched repos based on a novelty heuristic, selects the top tier, and generates 60-90 second viral "Deep Dive" reel scripts and technical breakdowns.
+4. **Generator Agent**: Scores the researched repos based on a novelty heuristic, selects the top tier, and generates 60-90 second viral "Deep Dive" Reel scripts and technical breakdowns.
 5. **Content Pillars Agent**: A daily rotating engine that generates highly-engaging original short-form Reel scripts (Workflows, Roadmaps, Tool Comparisons, Hidden Bugs, Problem-Solution Maps, and Data-Driven Trend Reports) to guarantee fresh daily content even if no standout repos are found.
 
 Finally, a Telegram client formats (using safe HTML parsing) and sends the dual-section daily summary (Original Content + Repo Finds) to your phone.
 
-Everything is stored persistently in a **Supabase (PostgreSQL)** database (with a 2-second write pacing to prevent connection drops) to ensure repos are never processed twice and to track historical velocity data.
+Everything is stored persistently in a **Supabase (PostgreSQL)** database to ensure repos are never processed twice and to track historical velocity data.
 
 ---
 
@@ -87,25 +89,28 @@ To enable it:
 
 ```text
 repo_radar/
-├── agents/             # LangGraph Nodes
+├── agents/                 # LangGraph Nodes
 │   ├── discovery_agent.py
 │   ├── filter_agent.py
 │   ├── research_agent.py
 │   ├── generator_agent.py
 │   └── content_pillars_agent.py
 ├── config/
-│   └── settings.py     # Centralized thresholds and model config
-├── core/               # API Clients
+│   └── settings.py         # Centralized thresholds and model config
+├── core/                   # API Clients
 │   ├── github_client.py
 │   ├── reddit_client.py
 │   ├── hn_client.py
-│   ├── llm_client.py   # Unified Groq/Anthropic interface
+│   ├── llm_client.py       # Unified Groq/Anthropic interface
 │   └── whatsapp_client.py
 ├── db/
 │   ├── schema.sql
 │   └── supabase_client.py
-├── prompts/            # System instructions for LLMs
+├── prompts/                # System instructions for LLMs
 │   └── pillar_prompts.py
-├── main.py             # LangGraph workflow compiler & runner
+├── main.py                 # LangGraph workflow compiler & runner
 └── requirements.txt
 ```
+
+## 📜 License
+MIT License
