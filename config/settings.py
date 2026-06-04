@@ -47,9 +47,9 @@ _GROQ_RESEARCH_MODEL = "llama-3.3-70b-versatile"  # Best Groq model for reasonin
 _GROQ_CONTENT_MODEL  = "llama-3.3-70b-versatile"  # Same for creative generation
 
 # OpenAI models (used when provider="openai")
-_OPENAI_FILTER_MODEL   = os.getenv("OPENAI_FILTER_MODEL", "meta/llama3-8b-instruct")
-_OPENAI_RESEARCH_MODEL = os.getenv("OPENAI_RESEARCH_MODEL", "meta/llama3-70b-instruct")
-_OPENAI_CONTENT_MODEL  = os.getenv("OPENAI_CONTENT_MODEL", "meta/llama3-70b-instruct")
+_OPENAI_FILTER_MODEL   = os.getenv("OPENAI_FILTER_MODEL", "openai/gpt-oss-120b")
+_OPENAI_RESEARCH_MODEL = os.getenv("OPENAI_RESEARCH_MODEL", "openai/gpt-oss-120b")
+_OPENAI_CONTENT_MODEL  = os.getenv("OPENAI_CONTENT_MODEL", "openai/gpt-oss-120b")
 
 # Active models (auto-selected by provider)
 if FILTER_PROVIDER == "groq":
