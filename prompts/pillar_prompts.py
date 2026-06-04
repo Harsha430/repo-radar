@@ -5,7 +5,7 @@ Each builder returns (system_prompt, user_prompt) and expects the LLM to
 respond with a JSON object:
   {
     "hook":          string,
-    "slides":        [{slide_num, headline, body, visual_cue}, ...],
+    "reel_script":   string,
     "caption":       string,
     "virality_score": int 0-100
   }
@@ -13,19 +13,20 @@ respond with a JSON object:
 
 # ─── Shared system prompt ─────────────────────────────────────────────────────
 
-PILLAR_SYSTEM_PROMPT = """You are a viral tech content creator for Instagram and LinkedIn targeting software engineers aged 20-35.
+PILLAR_SYSTEM_PROMPT = """You are a viral tech content creator for Instagram Reels targeting software engineers aged 20-35.
 
 Your content is:
 - Punchy, specific, and technically credible
 - Jargon-free but never dumbed-down
 - Immediately actionable — devs should be able to use what they learn TODAY
 - Original — never generic advice, always concrete examples
+- Formatted as a spoken script for a short-form video (30-60 seconds)
 
 CRITICAL OUTPUT RULES:
 - Respond ONLY with valid JSON. No markdown fences, no prose, no extra text.
-- "slides" must be an array of objects: {slide_num (int), headline (string, <12 words), body (string, 40-60 words), visual_cue (string, what to show on screen)}
+- "reel_script" must be a spoken script. Include visual cues in brackets like [Show code snippet on screen].
 - "caption" must be a ready-to-paste Instagram caption with 5-8 relevant hashtags at the end
-- "hook" must be the opening line — the scroll-stopper. Make it feel urgent or surprising.
+- "hook" must be the opening spoken line — the scroll-stopper. Make it feel urgent or surprising.
 - "virality_score" must be an integer from 0 to 100
 """
 
@@ -33,25 +34,20 @@ CRITICAL OUTPUT RULES:
 # ─── Pillar 2: Workflow Templates ─────────────────────────────────────────────
 
 def build_workflow_prompt(theme: str) -> str:
-    return f"""Generate a complete developer workflow carousel post for Instagram.
+    return f"""Generate a Reel script for a developer workflow.
 
 WORKFLOW THEME: "{theme}"
 
 Requirements:
-- 7 slides total
-- Slide 1: The complete workflow as an overview (name every tool in the stack)
-- Slides 2-7: One step each — tool name, what it does, how to set it up (include a real command or snippet)
 - Make it feel like a workflow a senior engineer actually uses
 - Name specific open-source tools for every step — no generic advice
-- body for each slide should include at least one concrete command or config snippet
+- The spoken script should guide the viewer step-by-step
+- Include visual cues [in brackets] showing what to put on screen (e.g. terminal commands, UI screenshots)
 
 Return a JSON object with these exact keys:
 {{
-  "hook": "the scroll-stopping opening line (shown on story or reel)",
-  "slides": [
-    {{"slide_num": 1, "headline": "...", "body": "...", "visual_cue": "..."}},
-    ...7 slides total...
-  ],
+  "hook": "the scroll-stopping spoken opening line",
+  "reel_script": "the full spoken script including visual cues in brackets",
   "caption": "full instagram caption with hashtags",
   "virality_score": 0-100
 }}"""
@@ -60,26 +56,21 @@ Return a JSON object with these exact keys:
 # ─── Pillar 3: Developer Roadmaps ─────────────────────────────────────────────
 
 def build_roadmap_prompt(theme: str) -> str:
-    return f"""Generate a complete developer learning roadmap carousel for Instagram.
+    return f"""Generate a Reel script for a developer learning roadmap.
 
 ROADMAP THEME: "{theme}"
 
 Requirements:
-- 7 slides total
-- Slide 1: Full roadmap overview — phases, total time estimate, what you'll be able to build
-- Slides 2-6: One phase each (Beginner/Intermediate/Advanced/Projects/Resources)
-  - Each phase: specific skills to learn, specific free resources (named), realistic time in weeks
-  - What to BUILD at each stage — not just what to read
-- Slide 7: "Start today" — the very first concrete step, today, right now
-- Be honest about timelines. Don't say "learn X in 1 week" unless it's true.
+- Break the roadmap down into clear phases (Beginner, Intermediate, Advanced)
+- Name specific free resources to learn from
+- Tell them exactly what to BUILD at each stage — not just what to read
+- End with a concrete "Start today" action
+- Include visual cues [in brackets] showing roadmap graphics or code
 
 Return a JSON object with these exact keys:
 {{
-  "hook": "the scroll-stopping opening line",
-  "slides": [
-    {{"slide_num": 1, "headline": "...", "body": "...", "visual_cue": "..."}},
-    ...7 slides total...
-  ],
+  "hook": "the scroll-stopping spoken opening line",
+  "reel_script": "the full spoken script including visual cues in brackets",
   "caption": "full instagram caption with hashtags",
   "virality_score": 0-100
 }}"""
@@ -88,27 +79,21 @@ Return a JSON object with these exact keys:
 # ─── Pillar 4: X vs Y Comparisons ────────────────────────────────────────────
 
 def build_comparison_prompt(tool_a: str, tool_b: str) -> str:
-    return f"""Generate a head-to-head tool comparison carousel for Instagram.
+    return f"""Generate a Reel script comparing two popular developer tools.
 
 COMPARISON: {tool_a} vs {tool_b}
 
 Requirements:
-- 6 slides total
-- Slide 1: "The honest answer" — a one-paragraph verdict without fence-sitting
-- Slide 2: {tool_a} — what it is, its 3 biggest strengths, who it's for
-- Slide 3: {tool_b} — what it is, its 3 biggest strengths, who it's for
-- Slide 4: Head-to-head table — pick 5 dimensions (performance, DX, ecosystem, learning curve, production-readiness)
-- Slide 5: Decision matrix — "Use {tool_a} if you need X. Use {tool_b} if you need Y." (3-4 bullet points each)
-- Slide 6: Final verdict — concrete recommendation based on the most common use case in 2025
-- Be specific, opinionated, and accurate. Avoid "it depends" as a final answer.
+- Don't sit on the fence. Give a highly opinionated, honest verdict.
+- Briefly mention the biggest strengths of {tool_a}.
+- Briefly mention the biggest strengths of {tool_b}.
+- Give a clear decision matrix ("Use {tool_a} if... Use {tool_b} if...")
+- Include visual cues [in brackets] showing logos, code comparisons, or bullet points
 
 Return a JSON object with these exact keys:
 {{
-  "hook": "the scroll-stopping opening line that creates tension between the two tools",
-  "slides": [
-    {{"slide_num": 1, "headline": "...", "body": "...", "visual_cue": "..."}},
-    ...6 slides total...
-  ],
+  "hook": "the scroll-stopping spoken opening line creating tension between the tools",
+  "reel_script": "the full spoken script including visual cues in brackets",
   "caption": "full instagram caption with hashtags",
   "virality_score": 0-100
 }}"""
@@ -117,28 +102,21 @@ Return a JSON object with these exact keys:
 # ─── Pillar 5: Problem → Solution Maps ───────────────────────────────────────
 
 def build_problem_solution_prompt(theme: str) -> str:
-    return f"""Generate a problem-to-solution map carousel for developers on Instagram.
+    return f"""Generate a Reel script mapping a developer problem to an open-source solution stack.
 
 THEME: "{theme}"
 
 Requirements:
-- 6 slides total
-- Slide 1: The problem — make it feel real and relatable (use "you" voice)
-- Slide 2: Solution overview — what options exist, what we'll cover
-- Slide 3: Stack for solo devs / indie hackers (cost, simplicity priority)
-- Slide 4: Stack for startups (scale + speed priority)
-- Slide 5: Stack for enterprise / teams (reliability + compliance priority)
-- Slide 6: "Which one are you?" — direct CTA
-- Name specific open-source tools and repos for every scenario
-- For each tool: why it's in the stack, how it fits with the others, a one-line install command
+- Start by making the problem feel real and relatable (use "you" voice)
+- Present the solution stack for a solo dev (simple, cheap)
+- Present the solution stack for a team/startup (scaleable)
+- Name specific open-source tools and repos
+- Include visual cues [in brackets] showing architecture diagrams or tool logos
 
 Return a JSON object with these exact keys:
 {{
-  "hook": "the scroll-stopping opening line — make the problem feel urgent",
-  "slides": [
-    {{"slide_num": 1, "headline": "...", "body": "...", "visual_cue": "..."}},
-    ...6 slides total...
-  ],
+  "hook": "the scroll-stopping spoken opening line — make the problem urgent",
+  "reel_script": "the full spoken script including visual cues in brackets",
   "caption": "full instagram caption with hashtags",
   "virality_score": 0-100
 }}"""
@@ -147,30 +125,22 @@ Return a JSON object with these exact keys:
 # ─── Pillar 7: Hidden Problem Posts ──────────────────────────────────────────
 
 def build_hidden_problem_prompt(language: str, topic: str) -> str:
-    return f"""Generate a "hidden bug / silent mistake" educational carousel for Instagram.
+    return f"""Generate an educational Reel script revealing a hidden bug or silent mistake.
 
 LANGUAGE/CONTEXT: {language}
 PROBLEM: {topic}
 
 Requirements:
-- 6 slides total
-- Slide 1: The scary hook — make this feel like a threat to the reader's code
-- Slide 2: What this problem is and WHY it happens (root cause, not surface symptom)
-- Slide 3: Show the BAD code — a short, realistic example that contains this exact bug
-  visual_cue: "show this exact code snippet on screen"
-- Slide 4: Show the FIXED code — the corrected version with the key change highlighted
-  visual_cue: "show this exact code snippet on screen"
-- Slide 5: How to FIND this in your existing codebase — grep command, linter rule, or code review checklist
-- Slide 6: The takeaway — one rule of thumb to remember forever
-- Be technically precise. The bad code and fixed code examples must be real and runnable.
+- Make this feel like an urgent threat to the viewer's codebase
+- Explain WHY the problem happens (the root cause)
+- The script must instruct the viewer to look at the screen for the "BAD CODE" and the "FIXED CODE"
+- Include precise visual cues [in brackets] showing EXACTLY what code should appear on screen
+- Provide a clear way to grep or search their codebase to find the issue
 
 Return a JSON object with these exact keys:
 {{
-  "hook": "the scroll-stopping scary opening line — this is about THEIR code",
-  "slides": [
-    {{"slide_num": 1, "headline": "...", "body": "...", "visual_cue": "..."}},
-    ...6 slides total...
-  ],
+  "hook": "the scroll-stopping scary opening line about their code",
+  "reel_script": "the full spoken script including visual cues in brackets",
   "caption": "full instagram caption with hashtags",
   "virality_score": 0-100
 }}"""
@@ -199,7 +169,7 @@ def build_trend_report_prompt(weekly_data: list[dict]) -> str:
 
     data_block = "\n".join(repo_lines) if repo_lines else "  No repos discovered this week."
 
-    return f"""Generate a weekly open-source trend report carousel for Instagram.
+    return f"""Generate a Reel script for a weekly open-source trend report.
 
 REAL DATA FROM THIS WEEK (use these actual numbers — do not hallucinate):
 Total repos discovered: {len(weekly_data)}
@@ -208,22 +178,16 @@ Top repos by velocity score:
 Top languages this week: {lang_str}
 
 Requirements:
-- 5 slides total
-- Slide 1: "What's moving in open source this week" — hook with the most surprising stat from the real data
-- Slide 2: Top 3 repos that blew up — name them, give real velocity scores, explain WHY they grew
-- Slide 3: Language/category trends — what's hot, what's cooling down, based on real counts above
-- Slide 4: The signal — what these trends tell us about where developer tooling is going
-- Slide 5: "Follow to catch next week's report" — CTA
-- Use the REAL numbers provided. Quote actual velocity scores and star counts.
-- The narrative must be grounded in the data above.
+- Use the REAL numbers provided above. Quote actual velocity scores and star counts.
+- Mention the top 1 or 2 repos that blew up and why they matter.
+- Mention a language or category trend based on the counts above.
+- What is the signal? (What does this mean for developers?)
+- Include visual cues [in brackets] showing data charts or repo screenshots on screen
 
 Return a JSON object with these exact keys:
 {{
   "hook": "the scroll-stopping data-backed opening line",
-  "slides": [
-    {{"slide_num": 1, "headline": "...", "body": "...", "visual_cue": "..."}},
-    ...5 slides total...
-  ],
+  "reel_script": "the full spoken script including visual cues in brackets",
   "caption": "full instagram caption with hashtags",
   "virality_score": 0-100
 }}"""

@@ -94,7 +94,7 @@ def run_content_pillars(state: dict[str, Any]) -> dict[str, Any]:
             "pillar": pillar,
             "theme": theme,
             "hook": parsed.get("hook", ""),
-            "slides": parsed.get("slides", []),
+            "reel_script": parsed.get("reel_script", ""),
             "caption": parsed.get("caption", ""),
             "virality_score": int(parsed.get("virality_score", 0)),
             "posted": False,

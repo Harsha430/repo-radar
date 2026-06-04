@@ -117,7 +117,7 @@ CREATE TABLE IF NOT EXISTS pillar_content (
                     )),
     theme           TEXT NOT NULL,       -- The specific topic used (e.g. "FastAPI vs Django")
     hook            TEXT NOT NULL,       -- The opening hook line
-    slides          JSONB NOT NULL,      -- Array of {slide_num, headline, body, visual_cue}
+    reel_script     TEXT NOT NULL,       -- Spoken script for the short-form video
     caption         TEXT NOT NULL,       -- Ready-to-post Instagram caption
     virality_score  INT CHECK (virality_score BETWEEN 0 AND 100),
     generated_at    TIMESTAMPTZ DEFAULT NOW(),
