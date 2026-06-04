@@ -4,6 +4,8 @@
 
 It runs completely autonomously via GitHub Actions every day at 6:00 AM IST, aggregates data across 4 platforms, uses LLMs to conduct deep research, generates ready-to-post viral content for social media (e.g., Instagram Reels), and delivers the final report directly to your Telegram.
 
+[![Star History Chart](https://api.star-history.com/svg?repos=Harsha430/repo_radar&type=Date)](https://star-history.com/#Harsha430/repo_radar&Date)
+
 ---
 
 ## 🚀 How it Works
