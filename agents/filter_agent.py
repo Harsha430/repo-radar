@@ -175,18 +175,9 @@ def run_filter(state: dict[str, Any]) -> dict[str, Any]:
             # On LLM failure, let the repo pass (don't penalize for API errors)
             return repo
 
-    import time
-    import threading
-    pacing_lock = threading.Lock()
-
     passed: list[dict] = []
     with ThreadPoolExecutor(max_workers=4) as executor:
-        def paced_llm_quality_check(r):
-            with pacing_lock:
-                time.sleep(3.5)
-            return llm_quality_check(r)
-            
-        futures = {executor.submit(paced_llm_quality_check, r): r for r in candidates}
+        futures = {executor.submit(llm_quality_check, r): r for r in candidates}
         for future in as_completed(futures):
             result = future.result()
             if result:
