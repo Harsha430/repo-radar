@@ -112,6 +112,7 @@ def _call_groq(model: str, system: str, user: str, max_tokens: int) -> str:
     response = client.chat.completions.create(
         model=model,
         max_tokens=max_tokens,
+        response_format={"type": "json_object"},
         messages=[
             {"role": "system", "content": system},
             {"role": "user", "content": user},

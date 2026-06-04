@@ -158,7 +158,7 @@ def run_filter(state: dict[str, Any]) -> dict[str, Any]:
                 user=prompt,
                 max_tokens=200,
             )
-            parsed = json.loads(text)
+            parsed = json.loads(text, strict=False)
 
             if parsed.get("is_acceptable", True):
                 return repo

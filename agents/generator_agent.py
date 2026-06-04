@@ -153,7 +153,7 @@ def _parse_json(text: str, context: str = "") -> dict | None:
         lines = text.split("\n")
         text = "\n".join(lines[1:-1])
     try:
-        return json.loads(text)
+        return json.loads(text, strict=False)
     except json.JSONDecodeError as e:
         logger.error(f"[Generator] JSON parse error for {context}: {e}\nRaw: {text[:300]}")
         return None
