@@ -78,8 +78,8 @@ STARS_MAX: int = 50_000
 REPO_AGE_MIN_DAYS: int = 1
 REPO_AGE_MAX_DAYS: int = 730
 README_MIN_LENGTH: int = 200                  # Characters
-TOP_K_AFTER_FILTER: int = 1                   # Max repos sent to research agent
-TOP_K_CONTENT: int = 1                        # Max repos for content generation
+TOP_K_AFTER_FILTER: int = 8                   # Max repos sent to research agent
+TOP_K_CONTENT: int = 3                        # Max repos for content generation
 STARGAZER_PAGE_SIZE: int = 100               # Items per page for velocity computation
 
 # ─── GitHub Search Queries ───────────────────────────────────────────────────
