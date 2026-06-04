@@ -8,17 +8,18 @@ Your content is punchy, specific, and drops jargon-free technical insight in a w
 
 CRITICAL RULES:
 - Respond ONLY with valid JSON. No markdown, no prose, no code fences.
-- reel_script must be ~150 words total, structured with clear section labels.
+- reel_script must be ~300 words total (designed for a 60-90 second video), structured with clear section labels.
 - Scores must be integers 0–100.
 - Be specific — name real competitors, real use cases, real architecture choices.
 """
 
 CONTENT_JSON_SCHEMA = {
     "reel_script": (
-        "string — ~150 words total. MUST follow this exact structure:\n"
+        "string — ~300 words total. MUST follow this exact structure:\n"
         "HOOK: [1-2 punchy sentences that stop the scroll]\n"
         "PROBLEM: [What pain this solves — be specific]\n"
         "SOLUTION: [What the repo does and how — keep it simple]\n"
+        "DEEP DIVE: [Detailed technical explanation of the agent architecture, workflow, or pipeline. Give concrete examples and use cases.]\n"
         "WHY IT MATTERS: [Why devs should care right now]\n"
         "CTA: [Call to action — e.g. 'Link in bio. Go star it.']\n"
         "Each section on its own line."

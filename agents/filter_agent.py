@@ -38,6 +38,7 @@ logger = logging.getLogger(__name__)
 FILTER_SYSTEM_PROMPT = """You are a quality gate for open-source repositories. You will receive basic info about a GitHub repo. Respond ONLY with valid JSON.
 
 Reject the repo (is_acceptable: false) if ANY of these are true:
+- It is NOT an AI Agent, AI Workflow, or LLM Pipeline tool (strictly enforce this!)
 - It's a toy, demo, tutorial, or hello-world project
 - It's a fork with no meaningful changes
 - It appears abandoned (no commits in 6+ months, no issues)

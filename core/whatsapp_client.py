@@ -19,7 +19,6 @@ def format_report(selected_repos, generated_content):
     for i, repo in enumerate(selected_repos, start=1):
         content = content_by_repo_id.get(repo.get("id", ""), {})
         reel = content.get("reel_script", "")
-        preview = reel[:REEL_PREVIEW_LENGTH] + ("..." if len(reel) > REEL_PREVIEW_LENGTH else "")
 
         lines += [
             "──────────────────────────",
@@ -30,7 +29,7 @@ def format_report(selected_repos, generated_content):
             f"🏆 Overall: {content.get('overall_score', '?')}/100",
             "",
             "📱 <b>Reel Script:</b>",
-            preview.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"),
+            reel.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"),
             "",
         ]
 

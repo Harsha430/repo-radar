@@ -73,7 +73,7 @@ else:
 # ─── Pipeline Thresholds ─────────────────────────────────────────────────────
 
 VELOCITY_THRESHOLD: float = 3.0               # Minimum velocity_score to pass filter
-STARS_MIN: int = 20
+STARS_MIN: int = 1200
 STARS_MAX: int = 50_000
 REPO_AGE_MIN_DAYS: int = 1
 REPO_AGE_MAX_DAYS: int = 730
@@ -85,13 +85,11 @@ STARGAZER_PAGE_SIZE: int = 100               # Items per page for velocity compu
 # ─── GitHub Search Queries ───────────────────────────────────────────────────
 
 GITHUB_SEARCH_QUERIES: list[str] = [
-    "stars:50..5000 pushed:>2024-01-01 sort:stars-desc",
-    "topic:ai stars:20..3000 pushed:>2024-01-01",
-    "topic:llm stars:20..3000 pushed:>2024-01-01",
-    "topic:rust stars:20..5000 pushed:>2024-06-01",
-    "topic:developer-tools stars:20..5000 pushed:>2024-01-01",
-    "topic:self-hosted stars:20..3000 pushed:>2024-01-01",
-    "topic:open-source stars:20..2000 pushed:>2025-01-01",
+    "topic:ai-agents stars:>1200 pushed:>2024-01-01 sort:stars-desc",
+    "topic:agents stars:>1200 pushed:>2024-01-01",
+    "topic:ai-workflows stars:>1200 pushed:>2024-01-01",
+    "topic:llm-pipelines stars:>1200 pushed:>2024-01-01",
+    "topic:llm-agents stars:>1200 pushed:>2024-01-01",
 ]
 
 # ─── Reddit Subreddits ───────────────────────────────────────────────────────
