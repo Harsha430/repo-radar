@@ -13,6 +13,7 @@ import anthropic
 
 from config.settings import (
     CONTENT_MODEL,
+    CONTENT_PROVIDER,
     TOP_K_CONTENT,
     SCORE_WEIGHT_VIRALITY,
     SCORE_WEIGHT_LEARNING,
@@ -64,6 +65,7 @@ def run_generator(state: dict[str, Any]) -> dict[str, Any]:
                 system=CONTENT_SYSTEM_PROMPT,
                 user=prompt,
                 max_tokens=3000,
+                provider=CONTENT_PROVIDER,
             )
             parsed = _parse_json(raw_text, fn)
             if parsed is None:

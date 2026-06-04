@@ -20,6 +20,7 @@ import anthropic
 
 from config.settings import (
     FILTER_MODEL,
+    FILTER_PROVIDER,
     VELOCITY_THRESHOLD,
     STARS_MIN,
     STARS_MAX,
@@ -157,6 +158,7 @@ def run_filter(state: dict[str, Any]) -> dict[str, Any]:
                 system=FILTER_SYSTEM_PROMPT,
                 user=prompt,
                 max_tokens=200,
+                provider=FILTER_PROVIDER,
             )
             parsed = json.loads(text, strict=False)
 
@@ -172,9 +174,18 @@ def run_filter(state: dict[str, Any]) -> dict[str, Any]:
             # On LLM failure, let the repo pass (don't penalize for API errors)
             return repo
 
+    import time
+    import threading
+    pacing_lock = threading.Lock()
+
     passed: list[dict] = []
     with ThreadPoolExecutor(max_workers=4) as executor:
-        futures = {executor.submit(llm_quality_check, r): r for r in candidates}
+        def paced_llm_quality_check(r):
+            with pacing_lock:
+                time.sleep(3.5)
+            return llm_quality_check(r)
+            
+        futures = {executor.submit(paced_llm_quality_check, r): r for r in candidates}
         for future in as_completed(futures):
             result = future.result()
             if result:

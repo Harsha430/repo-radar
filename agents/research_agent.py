@@ -11,7 +11,10 @@ from typing import Any
 
 import anthropic
 
-from config.settings import RESEARCH_MODEL
+from config.settings import (
+    RESEARCH_MODEL,
+    CONTENT_PROVIDER,
+)
 from core.github_client import get_readme, get_repo_metadata
 from core.llm_client import chat as llm_chat
 from db.supabase_client import insert_research
@@ -54,6 +57,7 @@ def run_research(state: dict[str, Any]) -> dict[str, Any]:
                 system=RESEARCH_SYSTEM_PROMPT,
                 user=prompt,
                 max_tokens=2000,
+                provider=CONTENT_PROVIDER,
             )
             parsed = _parse_json(raw_text, fn)
             if parsed is None:
@@ -120,7 +124,7 @@ def _parse_json(text: str, context: str = "") -> dict | None:
         lines = text.split("\n")
         text = "\n".join(lines[1:-1])
     try:
-        return json.loads(text)
+        return json.loads(text, strict=False)
     except json.JSONDecodeError as e:
         logger.error(f"[Research] JSON parse error for {context}: {e}\nRaw: {text[:300]}")
         return None

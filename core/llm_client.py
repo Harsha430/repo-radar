@@ -14,28 +14,34 @@ Usage:
 Provider is selected automatically based on LLM_PROVIDER in settings.py:
     LLM_PROVIDER = "anthropic"  →  uses anthropic SDK
     LLM_PROVIDER = "groq"       →  uses groq SDK (OpenAI-compatible)
+    LLM_PROVIDER = "openai"     →  uses openai SDK
 
 You can also mix providers per call by passing provider= explicitly:
     chat(model="llama-3.3-70b-versatile", provider="groq", ...)
 """
 
 import logging
+import threading
 from typing import Literal
 
 from config.settings import (
-    LLM_PROVIDER,
     ANTHROPIC_API_KEY,
-    GROQ_API_KEY,
+    GROQ_API_KEYS,
+    OPENAI_API_KEY,
+    OPENAI_BASE_URL,
 )
 
 logger = logging.getLogger(__name__)
 
-Provider = Literal["anthropic", "groq"]
+Provider = Literal["anthropic", "groq", "openai"]
 
 # ─── Lazy client singletons ───────────────────────────────────────────────────
 
 _anthropic_client = None
-_groq_client = None
+_groq_clients = []
+_groq_lock = threading.Lock()
+_groq_index = 0
+_openai_client = None
 
 
 def _get_anthropic():
@@ -47,11 +53,30 @@ def _get_anthropic():
 
 
 def _get_groq():
-    global _groq_client
-    if _groq_client is None:
+    global _groq_clients, _groq_index, _groq_lock
+    if not _groq_clients:
         from groq import Groq
-        _groq_client = Groq(api_key=GROQ_API_KEY)
-    return _groq_client
+        for key in GROQ_API_KEYS:
+            if key:
+                _groq_clients.append(Groq(api_key=key))
+        if not _groq_clients:
+            _groq_clients.append(Groq(api_key=""))
+    
+    with _groq_lock:
+        client = _groq_clients[_groq_index]
+        _groq_index = (_groq_index + 1) % len(_groq_clients)
+        return client
+
+
+def _get_openai():
+    global _openai_client
+    if _openai_client is None:
+        import openai
+        args = {"api_key": OPENAI_API_KEY}
+        if OPENAI_BASE_URL:
+            args["base_url"] = OPENAI_BASE_URL
+        _openai_client = openai.OpenAI(**args)
+    return _openai_client
 
 
 # ─── Unified chat function ────────────────────────────────────────────────────
@@ -71,7 +96,7 @@ def chat(
         system:     System prompt
         user:       User message
         max_tokens: Max tokens in response
-        provider:   "anthropic" or "groq". Defaults to LLM_PROVIDER from settings.
+        provider:   "anthropic", "groq", or "openai". MUST be specified.
 
     Returns:
         Response text string.
@@ -79,18 +104,20 @@ def chat(
     Raises:
         RuntimeError: If the provider is unsupported or the API call fails.
     """
-    resolved_provider: Provider = provider or LLM_PROVIDER  # type: ignore[assignment]
+    if not provider:
+        raise ValueError("provider MUST be explicitly passed to llm_chat now.")
 
-    logger.debug(f"[LLM] {resolved_provider}/{model} — max_tokens={max_tokens}")
+    logger.debug(f"[LLM] {provider}/{model} — max_tokens={max_tokens}")
 
-    if resolved_provider == "anthropic":
+    if provider == "anthropic":
         return _call_anthropic(model, system, user, max_tokens)
-    elif resolved_provider == "groq":
+    elif provider == "groq":
         return _call_groq(model, system, user, max_tokens)
+    elif provider == "openai":
+        return _call_openai(model, system, user, max_tokens)
     else:
         raise RuntimeError(
-            f"[LLM] Unknown provider: '{resolved_provider}'. "
-            "Set LLM_PROVIDER to 'anthropic' or 'groq' in config/settings.py"
+            f"[LLM] Unknown provider: '{provider}'."
         )
 
 
@@ -109,6 +136,20 @@ def _call_anthropic(model: str, system: str, user: str, max_tokens: int) -> str:
 
 def _call_groq(model: str, system: str, user: str, max_tokens: int) -> str:
     client = _get_groq()
+    response = client.chat.completions.create(
+        model=model,
+        max_tokens=max_tokens,
+        response_format={"type": "json_object"},
+        messages=[
+            {"role": "system", "content": system},
+            {"role": "user", "content": user},
+        ],
+    )
+    return response.choices[0].message.content.strip()
+
+
+def _call_openai(model: str, system: str, user: str, max_tokens: int) -> str:
+    client = _get_openai()
     response = client.chat.completions.create(
         model=model,
         max_tokens=max_tokens,

@@ -3,6 +3,7 @@ db/supabase_client.py — Typed helper functions for all Supabase read/write ope
 """
 
 import logging
+import time
 from datetime import date, datetime, timezone
 from typing import Any
 
@@ -42,6 +43,7 @@ def upsert_repo(repo: dict[str, Any]) -> str | None:
     Insert or update a repo row.
     Returns the UUID of the row, or None on failure.
     """
+    time.sleep(2)  # Pacing to avoid Supabase disconnects on batch writes
     try:
         client = get_client()
         response = (
@@ -59,6 +61,7 @@ def upsert_repo(repo: dict[str, Any]) -> str | None:
 
 def mark_repo_filtered(repo_id: str, passed: bool, reason: str | None = None) -> None:
     """Update the passed_filter and filter_reason fields for a repo."""
+    time.sleep(2)  # Pacing to avoid Supabase disconnects on batch writes
     try:
         client = get_client()
         client.table("repos").update(
