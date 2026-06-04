@@ -16,11 +16,9 @@ REDDIT_CLIENT_ID: str = os.environ["REDDIT_CLIENT_ID"]
 REDDIT_CLIENT_SECRET: str = os.environ["REDDIT_CLIENT_SECRET"]
 SUPABASE_URL: str = os.environ["SUPABASE_URL"]
 SUPABASE_KEY: str = os.environ["SUPABASE_KEY"]
-# Twilio is optional — pipeline continues without WhatsApp if these are unset
-TWILIO_SID: str = os.getenv("TWILIO_SID", "")
-TWILIO_AUTH_TOKEN: str = os.getenv("TWILIO_AUTH_TOKEN", "")
-TWILIO_WHATSAPP_FROM: str = os.getenv("TWILIO_WHATSAPP_FROM", "")
-WHATSAPP_TO: str = os.getenv("WHATSAPP_TO", "")
+# Telegram is optional — pipeline continues without it if unset
+TELEGRAM_BOT_TOKEN: str = os.getenv("TELEGRAM_BOT_TOKEN", "")
+TELEGRAM_CHAT_ID: str = os.getenv("TELEGRAM_CHAT_ID", "")
 
 # ─── LLM Provider ────────────────────────────────────────────────────────────
 # Set to "anthropic" or "groq"

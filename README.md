@@ -2,7 +2,7 @@
 
 **RepoRadar** is an autonomous Python agentic pipeline that discovers breakout open-source GitHub repositories *before* they go viral. 
 
-It runs completely autonomously via GitHub Actions every day at 6:00 AM IST, aggregates data across 4 platforms, uses LLMs to conduct deep research, generates ready-to-post viral content for social media (e.g., Instagram Reels), and delivers the final report directly to your WhatsApp.
+It runs completely autonomously via GitHub Actions every day at 6:00 AM IST, aggregates data across 4 platforms, uses LLMs to conduct deep research, generates ready-to-post viral content for social media (e.g., Instagram Reels), and delivers the final report directly to your Telegram.
 
 ---
 
@@ -13,7 +13,7 @@ The pipeline is orchestrated as a state machine using **LangGraph** with 4 disti
 1. **Discovery Agent**: Scrapes and queries 4 sources in parallel (GitHub Trending, GitHub Search API, Hacker News, and 7 programming subreddits) to find new repositories.
 2. **Filter Agent**: Calculates a "Velocity Score" (stars per hour) to surface unusually fast-growing repos, and uses an ultra-fast LLM (Groq Llama 3 or Claude Haiku) as a quality gate to drop spam or low-effort projects.
 3. **Research Agent**: Fetches the READMEs and repository metadata of the filtered repos, then runs deep parallel analysis (via Groq/Claude Opus) to understand the problem solved, tech stack, architecture, pros, and cons.
-4. **Generator Agent**: Scores the researched repos based on a novelty heuristic, selects the top 3, and generates viral reel scripts and technical breakdowns. Finally, a Twilio client formats and sends the daily summary to WhatsApp.
+4. **Generator Agent**: Scores the researched repos based on a novelty heuristic, selects the top 3, and generates viral reel scripts and technical breakdowns. Finally, a Telegram client formats and sends the daily summary to your chat.
 
 Everything is stored persistently in a **Supabase (PostgreSQL)** database to ensure repos are never processed twice and to track historical velocity data.
 
@@ -25,7 +25,7 @@ Everything is stored persistently in a **Supabase (PostgreSQL)** database to ens
 - **Data Sources**: GitHub REST API, BeautifulSoup4 (Scraping), PRAW (Reddit API), Hacker News Firebase API
 - **AI/LLMs**: Unified client supporting **Groq** (Llama 3) and **Anthropic** (Claude 3.5)
 - **Database**: Supabase (PostgreSQL)
-- **Notifications**: Twilio (WhatsApp Sandbox/Business)
+- **Notifications**: Telegram Bot
 - **Automation**: GitHub Actions
 
 ---
@@ -55,7 +55,7 @@ You will need to obtain 10 specific credentials:
 - `GROQ_API_KEY` or `ANTHROPIC_API_KEY`
 - `REDDIT_CLIENT_ID` & `REDDIT_CLIENT_SECRET`: From a Reddit "script" app
 - `SUPABASE_URL` & `SUPABASE_KEY`
-- `TWILIO_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_WHATSAPP_FROM`, `WHATSAPP_TO`
+- `TELEGRAM_BOT_TOKEN` & `TELEGRAM_CHAT_ID`: From Telegram BotFather
 
 *(See the inline comments in `.env.example` for where to obtain each key).*
 

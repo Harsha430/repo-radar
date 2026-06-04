@@ -37,8 +37,6 @@ jobs:
           REDDIT_CLIENT_SECRET:   ${{ secrets.REDDIT_CLIENT_SECRET }}
           SUPABASE_URL:           ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY:           ${{ secrets.SUPABASE_KEY }}
-          TWILIO_SID:             ${{ secrets.TWILIO_SID }}
-          TWILIO_AUTH_TOKEN:      ${{ secrets.TWILIO_AUTH_TOKEN }}
-          TWILIO_WHATSAPP_FROM:   ${{ secrets.TWILIO_WHATSAPP_FROM }}
-          WHATSAPP_TO:            ${{ secrets.WHATSAPP_TO }}
+          TELEGRAM_BOT_TOKEN:     ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID:       ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python main.py
