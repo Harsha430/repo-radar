@@ -104,3 +104,26 @@ CREATE TABLE IF NOT EXISTS daily_runs (
 );
 
 CREATE INDEX IF NOT EXISTS idx_daily_runs_run_date ON daily_runs (run_date DESC);
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Table: pillar_content
+-- Generated content for the 6 rotating content pillars (workflows, roadmaps, etc.)
+-- ─────────────────────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS pillar_content (
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    pillar          TEXT NOT NULL CHECK (pillar IN (
+                        'workflow', 'roadmap', 'comparison',
+                        'problem_solution', 'hidden_problem', 'trend_report'
+                    )),
+    theme           TEXT NOT NULL,       -- The specific topic used (e.g. "FastAPI vs Django")
+    hook            TEXT NOT NULL,       -- The opening hook line
+    slides          JSONB NOT NULL,      -- Array of {slide_num, headline, body, visual_cue}
+    caption         TEXT NOT NULL,       -- Ready-to-post Instagram caption
+    virality_score  INT CHECK (virality_score BETWEEN 0 AND 100),
+    generated_at    TIMESTAMPTZ DEFAULT NOW(),
+    posted          BOOLEAN DEFAULT FALSE
+);
+
+CREATE INDEX IF NOT EXISTS idx_pillar_content_pillar ON pillar_content (pillar);
+CREATE INDEX IF NOT EXISTS idx_pillar_content_generated_at ON pillar_content (generated_at DESC);
+CREATE INDEX IF NOT EXISTS idx_pillar_content_posted ON pillar_content (posted);

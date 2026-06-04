@@ -143,3 +143,65 @@ def update_daily_run(run_id: str, fields: dict[str, Any]) -> None:
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
+
+
+# ─── Pillar Content ───────────────────────────────────────────────────────────
+
+def insert_pillar_content(record: dict[str, Any]) -> str | None:
+    """
+    Insert a pillar content row.
+    Returns the UUID, or None on failure.
+    """
+    try:
+        client = get_client()
+        response = client.table("pillar_content").insert(record).execute()
+        if response.data:
+            return response.data[0]["id"]
+        return None
+    except Exception as e:
+        logger.error(f"[Supabase] Failed to insert pillar_content ({record.get('pillar')}): {e}")
+        return None
+
+
+def get_used_pillar_themes(pillar: str, days: int = 28) -> list[str]:
+    """
+    Return all themes used for a given pillar in the last `days` days.
+    Used to enforce the no-repeat rule when picking today's topic.
+    """
+    try:
+        from datetime import timedelta
+        cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+        client = get_client()
+        response = (
+            client.table("pillar_content")
+            .select("theme")
+            .eq("pillar", pillar)
+            .gte("generated_at", cutoff)
+            .execute()
+        )
+        return [row["theme"] for row in response.data]
+    except Exception as e:
+        logger.error(f"[Supabase] Failed to fetch used themes for pillar '{pillar}': {e}")
+        return []
+
+
+def get_weekly_repo_summary() -> list[dict[str, Any]]:
+    """
+    Return all repos discovered in the last 7 days with velocity and topic data.
+    Used by the Sunday Trend Report to write a data-driven narrative.
+    """
+    try:
+        from datetime import timedelta
+        cutoff = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
+        client = get_client()
+        response = (
+            client.table("repos")
+            .select("full_name, url, stars_current, velocity_score, stars_gained_24h, language, topics, passed_filter")
+            .gte("first_seen_at", cutoff)
+            .order("velocity_score", desc=True)
+            .execute()
+        )
+        return response.data or []
+    except Exception as e:
+        logger.error(f"[Supabase] Failed to fetch weekly repo summary: {e}")
+        return []

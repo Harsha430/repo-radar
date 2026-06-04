@@ -21,6 +21,7 @@ from agents.discovery_agent import run_discovery
 from agents.filter_agent import run_filter
 from agents.generator_agent import run_generator
 from agents.research_agent import run_research
+from agents.content_pillars_agent import run_content_pillars
 from core.whatsapp_client import format_report, format_empty_report, send_whatsapp
 from db.supabase_client import create_daily_run, update_daily_run
 
@@ -42,7 +43,8 @@ class PipelineState(TypedDict):
     filtered_repos: list[dict]           # After filter
     researched_repos: list[dict]         # After research
     selected_repos: list[dict]           # After content selection
-    generated_content: list[dict]        # Content records
+    generated_content: list[dict]        # Repo content records
+    pillar_content: list[dict]           # Today's pillar content record
     errors: list[str]                    # Non-fatal error log
 
 
@@ -70,7 +72,8 @@ def save_run(state: PipelineState) -> PipelineState:
             "status": "failed" if not generated and errors else "success",
         })
 
-    logger.info("[Pipeline] Run record saved to Supabase.")
+    pillar = state.get("pillar_content", [])
+    logger.info(f"[Pipeline] Run record saved. Repo content: {len(generated)}, Pillar content: {len(pillar)}")
     return state
 
 
@@ -78,15 +81,16 @@ def save_run(state: PipelineState) -> PipelineState:
 
 def send_report(state: PipelineState) -> PipelineState:
     """
-    LangGraph node — formats and sends the WhatsApp report.
+    LangGraph node — formats and sends the Telegram report.
     Never fails the pipeline (errors are logged only).
     """
     selected = state.get("selected_repos", [])
     generated = state.get("generated_content", [])
+    pillar = state.get("pillar_content", [])
     run_id = state.get("run_id", "")
 
     if selected and generated:
-        message = format_report(selected, generated)
+        message = format_report(selected, generated, pillar)
     else:
         message = format_empty_report()
         logger.warning("[Pipeline] Sending empty-run report — no content generated today.")
@@ -109,6 +113,7 @@ def build_pipeline() -> Any:
     graph.add_node("filter", run_filter)
     graph.add_node("research", run_research)
     graph.add_node("generate_content", run_generator)
+    graph.add_node("content_pillars", run_content_pillars)
     graph.add_node("save_run", save_run)
     graph.add_node("send_whatsapp", send_report)
 
@@ -116,7 +121,8 @@ def build_pipeline() -> Any:
     graph.add_edge("discovery", "filter")
     graph.add_edge("filter", "research")
     graph.add_edge("research", "generate_content")
-    graph.add_edge("generate_content", "save_run")
+    graph.add_edge("generate_content", "content_pillars")
+    graph.add_edge("content_pillars", "save_run")
     graph.add_edge("save_run", "send_whatsapp")
     graph.add_edge("send_whatsapp", END)
 
@@ -147,6 +153,7 @@ def main() -> None:
         "researched_repos": [],
         "selected_repos": [],
         "generated_content": [],
+        "pillar_content": [],
         "errors": [],
     }
 
