@@ -64,6 +64,8 @@ def _get_groq():
     
     with _groq_lock:
         client = _groq_clients[_groq_index]
+        key_snippet = client.api_key[-4:] if client.api_key and len(client.api_key) >= 4 else "None"
+        logger.info(f"[LLM] Round-Robin: Using Groq API key ending in ...{key_snippet} (Index: {_groq_index + 1}/{len(_groq_clients)})")
         _groq_index = (_groq_index + 1) % len(_groq_clients)
         return client
 
@@ -153,7 +155,6 @@ def _call_openai(model: str, system: str, user: str, max_tokens: int) -> str:
     response = client.chat.completions.create(
         model=model,
         max_tokens=max_tokens,
-        response_format={"type": "json_object"},
         messages=[
             {"role": "system", "content": system},
             {"role": "user", "content": user},
