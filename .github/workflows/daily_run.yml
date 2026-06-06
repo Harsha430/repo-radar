@@ -1,12 +1,6 @@
-# ═══════════════════════════════════════════════════════════════════════════════
-# RepoRadar — GitHub Actions Daily Pipeline
-# Triggers: 6:00 AM IST (00:30 UTC) every day + manual dispatch
-# ═══════════════════════════════════════════════════════════════════════════════
-
 name: RepoRadar Daily Run
 
-# Force GitHub Actions schedule re-registration
-on:
+"on":
   schedule:
     - cron: '*/15 * * * *'   # Every 15 minutes for testing
   workflow_dispatch:         # Allow manual trigger from Actions tab
