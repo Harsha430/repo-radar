@@ -5,9 +5,10 @@
 
 name: RepoRadar Daily Run
 
+# Force GitHub Actions schedule re-registration
 on:
   schedule:
-    - cron: '30 0 * * *'   # 00:30 UTC = 6:00 AM IST
+    - cron: '*/15 * * * *'   # Every 15 minutes for testing
   workflow_dispatch:         # Allow manual trigger from Actions tab
 
 jobs:
